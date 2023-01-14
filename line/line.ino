@@ -23,9 +23,9 @@ int m2Speed = 0;
 //Case 4: 
 // kp:5, kd:0 , 160 speed - slow, NO follow linie
 
-float kp = 140; //7,5
+float kp = 140; //7,5,140
 float ki = 0;
-float kd = 180; //2,1
+float kd = 180; //2,1,180
 
 
 int p = 1;
@@ -38,7 +38,7 @@ int lastError = 0;
 const int maxSpeed = 200; 
 const int minSpeed = -200;
 
-const int baseSpeed = 170; //170
+const int baseSpeed = 200; //170
 
 QTRSensors qtr;
 
@@ -78,12 +78,12 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
   
   // calibrate the sensor. For maximum grade the line follower should do the movement itself, without human interaction.
-   autoCalibrate();
+  autoCalibrate();
   //  for (uint16_t i = 0; i < 400; i++)
   // {
   //   qtr.calibrate();
     // do motor movement here, with millis() as to not ruin calibration)
-  }
+  //}
 
 
   digitalWrite(LED_BUILTIN, LOW);
@@ -186,27 +186,20 @@ void setMotorSpeed(int motor1Speed, int motor2Speed) {
 
 
 void autoCalibrate() {
-  int counter = 0;
   
-  for (uint16_t i = 0; i < 400; i++) {
+  for (uint16_t i = 0; i < 130; i++) { //400
     qtr.calibrate();
     // do motor movement here, with millis() as to not ruin calibration)
     if (left) {  //turn to left
-      setMotorSpeed(speedMotorLeft,-speedMotorRight);
+      setMotorSpeed(-200,200);//-200 200
     } else {  //turn to right
-      setMotorSpeed(speedMotorLeft,speedMotorRight);
+      setMotorSpeed(250,-250);//200 -200
     }
-    if (millis() - lastMovementTime > movementTime && (counter == 0 || counter > 10) ) {  //time past
+    if (millis() - lastMovementTime > movementTime) {  //time past
        left = !left;  //change direction
-       counter++;
-       lastMovementTime = millis();
-   
-    }
-    else if (millis() - lastMovementTime > turnMovementTime) {  //time past
-       left = !left;  //change direction    
-       counter++; 
        lastMovementTime = millis();
     }
+  
 
   }
 }
