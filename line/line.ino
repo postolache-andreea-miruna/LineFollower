@@ -11,23 +11,34 @@ int m2Speed = 0;
 
 
 // increase kp’s value and see what happens
-float kp =4 ;
+//Case 1: full batery
+// kp:5, kd:0 , 150 speed - slow, follow linie
+
+//Case 2: 
+// kp:6, kd:0 , 160 speed - slow, NO follow linie
+
+//Case 3: 
+// kp:5, kd:1 , 200 speed - slow, NO follow linie
+
+//Case 4: 
+// kp:5, kd:0 , 160 speed - slow, NO follow linie
+
+float kp = 140; //7,5
 float ki = 0;
-float kd = 0;
+float kd = 180; //2,1
 
 
-
-int p = 0;
+int p = 1;
 int i = 0;
 int d = 0;
 
 int error = 0;
 int lastError = 0;
 
-const int maxSpeed = 255;
-const int minSpeed = -255;
+const int maxSpeed = 200; 
+const int minSpeed = -200;
 
-const int baseSpeed = 255;
+const int baseSpeed = 170; //170
 
 QTRSensors qtr;
 
@@ -35,7 +46,20 @@ const int sensorCount = 6;
 int sensorValues[sensorCount];
 int sensors[sensorCount] = {0, 0, 0, 0, 0, 0};
 
-long calibrationInterval = 0;
+
+//CALIBRATION
+
+//speed variables
+const int speedMotorLeft = 0;
+const int speedMotorRight = 200;
+//time variables
+const int movementTime = 500;  //for left-right movements
+const int turnMovementTime = 1000;  //for left-right movements
+long int lastMovementTime;
+long int lastTurnTime;
+bool left = false;
+
+
 void setup() {
 
   // pinMode setup
@@ -54,10 +78,14 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
   
   // calibrate the sensor. For maximum grade the line follower should do the movement itself, without human interaction.
-  for (uint16_t i = 0; i < 400; i++)
-  {
-    qtr.calibrate();
+   autoCalibrate();
+  //  for (uint16_t i = 0; i < 400; i++)
+  // {
+  //   qtr.calibrate();
+    // do motor movement here, with millis() as to not ruin calibration)
   }
+
+
   digitalWrite(LED_BUILTIN, LOW);
 
   Serial.begin(9600);
@@ -65,8 +93,27 @@ void setup() {
 }
 
 void loop() {
-  // inefficient code, written in loop. You must create separate functions
-  int error = map(qtr.readLineBlack(sensorValues), 0, 5000, -50, 50);
+ 
+  pidControl(kp,ki,kd);
+  setMotorSpeed(m1Speed, m2Speed);
+
+  
+//  DEBUGGING
+//  Serial.print("Error: ");
+//  Serial.println(error);
+//  Serial.print("M1 speed: ");
+//  Serial.println(m1Speed);
+//
+//  Serial.print("M2 speed: ");
+//  Serial.println(m2Speed);
+//
+//  delay(250);
+}
+
+
+// calculate PID value based on error, kp, kd, ki, p, i and d.
+void pidControl(float kp, float ki, float kd) {
+ int error = map(qtr.readLineBlack(sensorValues), 0, 5000, -50, 50);
 
   p = error;
   i = i + error;
@@ -93,27 +140,6 @@ void loop() {
   // maybe the lower bound should be negative, instead of 0? This of what happens when making a steep turn
   m1Speed = constrain(m1Speed, 0, maxSpeed);
   m2Speed = constrain(m2Speed, 0, maxSpeed);
-
-
-  setMotorSpeed(m1Speed, m2Speed);
-
-  
-//  DEBUGGING
-//  Serial.print("Error: ");
-//  Serial.println(error);
-//  Serial.print("M1 speed: ");
-//  Serial.println(m1Speed);
-//
-//  Serial.print("M2 speed: ");
-//  Serial.println(m2Speed);
-//
-//  delay(250);
-}
-
-
-// calculate PID value based on error, kp, kd, ki, p, i and d.
-void pidControl(float kp, float ki, float kd) {
-// TODO
 }
 
 
@@ -155,5 +181,32 @@ void setMotorSpeed(int motor1Speed, int motor2Speed) {
       digitalWrite(m22Pin, HIGH);
       analogWrite(m2Enable, -motor2Speed);
     }
+  }
+}
+
+
+void autoCalibrate() {
+  int counter = 0;
+  
+  for (uint16_t i = 0; i < 400; i++) {
+    qtr.calibrate();
+    // do motor movement here, with millis() as to not ruin calibration)
+    if (left) {  //turn to left
+      setMotorSpeed(speedMotorLeft,-speedMotorRight);
+    } else {  //turn to right
+      setMotorSpeed(speedMotorLeft,speedMotorRight);
+    }
+    if (millis() - lastMovementTime > movementTime && (counter == 0 || counter > 10) ) {  //time past
+       left = !left;  //change direction
+       counter++;
+       lastMovementTime = millis();
+   
+    }
+    else if (millis() - lastMovementTime > turnMovementTime) {  //time past
+       left = !left;  //change direction    
+       counter++; 
+       lastMovementTime = millis();
+    }
+
   }
 }
