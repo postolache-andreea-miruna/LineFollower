@@ -25,7 +25,7 @@ int m2Speed = 0;
 
 float kp = 140; //7,5,140
 float ki = 0;
-float kd = 170; //2,1,180
+float kd = 180; //2,1,180
 
 
 int p = 1;
