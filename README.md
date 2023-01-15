@@ -38,6 +38,18 @@ Ten hours line follower hackathon as part of the final project for Introduction 
 <details>
 <summary> <h2>Code details :computer:</h2> </summary>
 <br>
+<details>
+<summary> <h3>PID</h3> </summary>
+
+First it is better to start by changing just kp value. 
+
+      Increase the value if the robot can not do a turn;
+      
+      Decrease the value if the robot do not follow the line becouse of overshooting
+
+After finding a resonable kp value, next step is to change kd value by
+
+      Increasing till the robot doesn't wobble to much and also takes better turns.
 
 The final values for PID control
 
@@ -83,9 +95,32 @@ The final values for PID control
       float kp = 5; 
       float ki = 0;
       float kd = 0;
+ </details>
+ 
+ <details>
+ <summary> <h3>Calibration(with millis)</h3> </summary>
+ 
+       For CALIBRATION it is used autoCalibrate function where the robot moves left and right
+       in order to understand the difference between black and white. 
+ 
+ He first goes to the right, then to the left and so on.
+ 
+ Calibration covers all sensors.
+ 
+ - For the right move, the robot will have the following motor speeds:
       
-
-  
+      - right motor: -200
+            
+      - left motor: 200
+      
+ - For the left move, the robot will have the following motor speeds:
+ 
+      - right motor: 250
+      
+      - left motor: -250
+     
+ These values were chosen after several attempts.
+</details>
 
 </details>
 
@@ -97,7 +132,10 @@ The final values for PID control
 
 
 
+### Setup
 
+1.
 <img src="https://user-images.githubusercontent.com/96074975/212561374-39e04df3-fe72-49c7-b00a-035a95a30332.png" width=50% height=50%> 
 
+2.
 <img src="https://user-images.githubusercontent.com/96074975/212561476-f946fbb6-c66c-4be6-bcd3-9b1fe347ee18.png" width=50% height=50%> 
