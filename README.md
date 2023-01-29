@@ -1,6 +1,6 @@
 # ROBOTICS HACKATHON (jan 2023) - Line Follower
 Ten hours line follower hackathon as part of the final project for Introduction In Robotics 3rd year course.
-### Task: The robot must follow the linie as accurate as possible in order to finish the track. The robot has 3 tries to get the best time.
+### Task: The robot must follow the line as accurate as possible in order to finish the track. The robot has 3 tries to get the best time.
 
 Team: R2D2
 
